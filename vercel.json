@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [{ "source": "/:path", "destination": "/api/:path" }],
+  "redirects": [{ "source": "/", "destination": "https://github.com/joulev/mrt-station-badges" }]
+}
