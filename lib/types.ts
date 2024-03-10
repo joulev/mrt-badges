@@ -13,3 +13,7 @@ export interface StationCode {
 export type StationCodePart = StationCode[];
 
 export type Station = StationCodePart[];
+
+export interface Options {
+  border?: number;
+}

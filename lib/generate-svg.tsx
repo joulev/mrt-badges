@@ -1,7 +1,7 @@
 import React from "react";
 import satori from "satori";
 import { getStationDetails } from "./get-station-details";
-import type { Station, StationCode, StationCodePart } from "./types";
+import type { Options, Station, StationCode, StationCodePart } from "./types";
 
 // Source: LTA Identity Font Typeface.zip in https://github.com/jglim/IdentityFont/issues/3
 // LTA Identity.ttf file
@@ -10,7 +10,7 @@ import type { Station, StationCode, StationCodePart } from "./types";
 const FONT_URL = "https://r2.joulev.dev/files/v9w4vh2nf0t8mxk71y4zi4xs";
 
 // Increase this for easier development
-const SCALE = 1;
+const SCALE = 0.5;
 
 const FONT_SIZE = 27 * SCALE;
 const BORDER = 2 * SCALE;
@@ -22,7 +22,7 @@ const CODE_TEXT_SHIFT_UP = 1 * SCALE;
 const CODE_SEPARATOR_WIDTH = 3 * SCALE;
 const PART_BORDER_RADIUS_X = 15 * SCALE;
 const PART_GAP = 24 * SCALE;
-const PART_CONNECTOR_WIDTH = 30 * SCALE; // enough to overlap the borders of the parts
+const PART_CONNECTOR_WIDTH_OFFSET = 2 * SCALE;
 const PART_CONNECTOR_HEIGHT = 11 * SCALE;
 const PART_CONNECTOR_DX = 2 * SCALE;
 const BORDER_COLOUR = "white";
@@ -72,14 +72,14 @@ function StationCodeSeparator({
   return <div style={{ height: "100%", background: BORDER_COLOUR, width: CODE_SEPARATOR_WIDTH }} />;
 }
 
-function StationPartDisplay({ part }: { part: StationCodePart }) {
+function StationPartDisplay({ part, options }: { part: StationCodePart; options: Options }) {
   return (
     <div
       style={{
         position: "relative",
         display: "flex",
         flexDirection: "row",
-        border: `${BORDER}px solid ${BORDER_COLOUR}`,
+        border: `${options.border || BORDER}px solid ${BORDER_COLOUR}`,
         borderRadius: `${PART_BORDER_RADIUS_X}px/50%`,
         overflow: "hidden",
       }}
@@ -99,13 +99,23 @@ function StationPartSeparator({
   rightIndex,
   station,
   partWidths,
-}: { leftIndex: number; rightIndex: number; station: Station; partWidths: number[] }) {
+  options,
+}: {
+  leftIndex: number;
+  rightIndex: number;
+  station: Station;
+  partWidths: number[];
+  options: Options;
+}) {
   const partLeft = station.at(leftIndex);
   const partRight = station.at(rightIndex);
   if (!partLeft || !partRight) return null;
 
   const rightmostPointPartLeft =
     partWidths.slice(0, leftIndex + 1).reduce((a, b) => a + b + PART_GAP, 0) - PART_GAP;
+
+  const border = options.border || BORDER;
+  const partConnectorWidth = PART_GAP + border * 2 + PART_CONNECTOR_WIDTH_OFFSET * 2;
 
   return (
     <>
@@ -114,11 +124,11 @@ function StationPartSeparator({
           position: "absolute",
           background: partLeft[partLeft.length - 1].colour.bg,
           height: PART_CONNECTOR_HEIGHT,
-          width: PART_CONNECTOR_WIDTH / 2 + PART_CONNECTOR_DX,
-          top: CODE_HEIGHT / 2 - PART_CONNECTOR_HEIGHT / 2 + BORDER,
-          left: rightmostPointPartLeft - (PART_CONNECTOR_WIDTH - PART_GAP) / 2,
-          clipPath: `polygon(0 0, ${PART_CONNECTOR_WIDTH / 2 + PART_CONNECTOR_DX}px 0, ${
-            PART_CONNECTOR_WIDTH / 2 - PART_CONNECTOR_DX
+          width: partConnectorWidth / 2 + PART_CONNECTOR_DX,
+          top: CODE_HEIGHT / 2 - PART_CONNECTOR_HEIGHT / 2 + border,
+          left: rightmostPointPartLeft - (partConnectorWidth - PART_GAP) / 2,
+          clipPath: `polygon(0 0, ${partConnectorWidth / 2 + PART_CONNECTOR_DX}px 0, ${
+            partConnectorWidth / 2 - PART_CONNECTOR_DX
           }px 100%, 0 100%)`,
         }}
       />
@@ -127,24 +137,26 @@ function StationPartSeparator({
           position: "absolute",
           background: partRight[0].colour.bg,
           height: PART_CONNECTOR_HEIGHT,
-          width: PART_CONNECTOR_WIDTH / 2 + PART_CONNECTOR_DX,
-          top: CODE_HEIGHT / 2 - PART_CONNECTOR_HEIGHT / 2 + BORDER,
+          width: partConnectorWidth / 2 + PART_CONNECTOR_DX,
+          top: CODE_HEIGHT / 2 - PART_CONNECTOR_HEIGHT / 2 + border,
           left: rightmostPointPartLeft + PART_GAP / 2 - PART_CONNECTOR_DX,
           clipPath: `polygon(${PART_CONNECTOR_DX * 2} 0, ${
-            PART_CONNECTOR_WIDTH / 2 + PART_CONNECTOR_DX
-          } 0, ${PART_CONNECTOR_WIDTH / 2 + PART_CONNECTOR_DX} 100%, 0 100%)`,
+            partConnectorWidth / 2 + PART_CONNECTOR_DX
+          } 0, ${partConnectorWidth / 2 + PART_CONNECTOR_DX} 100%, 0 100%)`,
         }}
       />
     </>
   );
 }
 
-function StationBadge({ station }: { station: Station }) {
+function StationBadge({ station, options }: { station: Station; options: Options }) {
+  const border = options.border || BORDER;
+
   if (station.length === 0)
     return (
       <div
         style={{
-          height: CODE_HEIGHT + BORDER * 2,
+          height: CODE_HEIGHT + border * 2,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -168,7 +180,7 @@ function StationBadge({ station }: { station: Station }) {
           return CODE_WIDTH + CODE_SEPARATOR_WIDTH;
         })
         .reduce((a, b) => a + b, 0) +
-      BORDER * 2,
+      border * 2,
   );
   const fullWidth = partWidths.reduce((a, b) => a + b + PART_GAP, 0) - PART_GAP;
 
@@ -178,7 +190,7 @@ function StationBadge({ station }: { station: Station }) {
         position: "relative",
         display: "flex",
         fontSize: FONT_SIZE,
-        height: CODE_HEIGHT + BORDER * 2,
+        height: CODE_HEIGHT + border * 2,
         width: fullWidth,
       }}
     >
@@ -197,9 +209,9 @@ function StationBadge({ station }: { station: Station }) {
         <div
           style={{
             width: "100%",
-            height: PART_CONNECTOR_HEIGHT + BORDER * 2,
-            borderTop: `${BORDER}px solid ${BORDER_COLOUR}`,
-            borderBottom: `${BORDER}px solid ${BORDER_COLOUR}`,
+            height: PART_CONNECTOR_HEIGHT + border * 2,
+            borderTop: `${border}px solid ${BORDER_COLOUR}`,
+            borderBottom: `${border}px solid ${BORDER_COLOUR}`,
           }}
         />
       </div>
@@ -214,7 +226,7 @@ function StationBadge({ station }: { station: Station }) {
         }}
       >
         {station.map((part, i) => (
-          <StationPartDisplay part={part} key={i} />
+          <StationPartDisplay part={part} options={options} key={i} />
         ))}
       </div>
       {station.map((_, i) => (
@@ -224,16 +236,18 @@ function StationBadge({ station }: { station: Station }) {
           rightIndex={i + 1}
           station={station}
           partWidths={partWidths}
+          options={options}
         />
       ))}
     </div>
   );
 }
 
-export async function generateSvg(rawStation: string) {
+export async function generateSvg(rawStation: string, options: Options) {
   const station = getStationDetails(rawStation);
-  return satori(<StationBadge station={station} />, {
-    height: CODE_HEIGHT + BORDER * 2,
+  const border = options.border || BORDER;
+  return satori(<StationBadge station={station} options={options} />, {
+    height: CODE_HEIGHT + border * 2,
     fonts: [{ name: "main", data: await getFont(), weight: 400, style: "normal" }],
   });
 }

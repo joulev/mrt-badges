@@ -1,12 +1,11 @@
 import { generateSvg } from "../lib/generate-svg";
 
-function getStationNameFromRequest(req: Request) {
-  const pathname = new URL(req.url).pathname;
-  return pathname.split("/").pop() || "";
-}
-
 export async function GET(req: Request) {
-  const svg = await generateSvg(getStationNameFromRequest(req));
+  const url = new URL(req.url);
+  const station = url.pathname.split("/").pop() || "";
+  const border = Number.parseInt(url.searchParams.get("border") || "");
+
+  const svg = await generateSvg(station, { border: Number.isNaN(border) ? undefined : border });
   return new Response(svg, {
     headers: {
       "Content-Type": "image/svg+xml",
