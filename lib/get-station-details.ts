@@ -16,6 +16,7 @@ const lineColour: Record<string, LineColour> = {
   // Thomson–East Coast Line
   TE: { bg: "#9d5b24", fg: "white" },
   // Jurong Region Line
+  JR: { bg: "#00b0bd", fg: "white" },
   JS: { bg: "#00b0bd", fg: "white" },
   JW: { bg: "#00b0bd", fg: "white" },
   JE: { bg: "#00b0bd", fg: "white" },
