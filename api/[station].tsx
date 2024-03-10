@@ -7,7 +7,9 @@ function getStationNameFromRequest(req: Request) {
 
 export async function GET(req: Request) {
   const svg = await generateSvg(getStationNameFromRequest(req));
-  return new Response(svg, { headers: { "Content-Type": "image/svg+xml" } });
+  return new Response(svg, {
+    headers: { "Content-Type": "image/svg+xml", "Cache-Control": "public, s-maxage=3600" },
+  });
 }
 
 export const config = { runtime: "edge" };
