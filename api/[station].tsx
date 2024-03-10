@@ -1,4 +1,4 @@
-import { generateSvg } from "~/lib/generate-svg";
+import { generateSvg } from "../lib/generate-svg";
 
 function getStationNameFromRequest(req: Request) {
   const pathname = new URL(req.url).pathname;

@@ -11,8 +11,6 @@
     "allowJs": true,
     "noEmit": true,
     "resolveJsonModule": true,
-    "jsx": "react",
-    "baseUrl": ".",
-    "paths": { "~/*": ["./*"] }
+    "jsx": "react"
   }
 }
