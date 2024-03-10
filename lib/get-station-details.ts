@@ -35,7 +35,7 @@ export function getStationDetails(station: string): Station {
       connectedPart
         .split(":")
         .map((code): StationCode | null => {
-          const match = /(?<line>[A-Z]+)(?<num>\d*)/.exec(code);
+          const match = /(?<line>[A-Z]+)(?<num>\d*[A-Z]?)/.exec(code);
           if (!match?.groups) return null;
           const lineCode = match.groups.line;
           const colour =

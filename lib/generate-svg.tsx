@@ -10,14 +10,14 @@ import type { Options, Station, StationCode, StationCodePart } from "./types";
 const FONT_URL = "https://r2.joulev.dev/files/v9w4vh2nf0t8mxk71y4zi4xs";
 
 // Increase this for easier development
-const SCALE = 0.5;
+const SCALE = 1;
 
-const FONT_SIZE = 27 * SCALE;
 const BORDER = 2 * SCALE;
 const CODE_WIDTH = 84 * SCALE;
 const CODE_HEIGHT = 50 * SCALE;
 const CODE_GAP = 4 * SCALE;
-const CODE_TEXT_HEIGHT = 19 * SCALE;
+const FONT_SIZE = 27 * SCALE;
+const FONT_SIZE_SM = 24 * SCALE;
 const CODE_TEXT_SHIFT_UP = 1 * SCALE;
 const CODE_SEPARATOR_WIDTH = 3 * SCALE;
 const PART_BORDER_RADIUS_X = 15 * SCALE;
@@ -33,6 +33,8 @@ async function getFont() {
 }
 
 function StationCodeDisplay({ code }: { code: StationCode }) {
+  const fontSize = code.lineCode.length + code.number.length > 4 ? FONT_SIZE_SM : FONT_SIZE;
+  const textHeight = (fontSize / 27) * 19;
   return (
     <div
       style={{
@@ -52,8 +54,9 @@ function StationCodeDisplay({ code }: { code: StationCode }) {
           flexDirection: "row",
           transform: `translateY(-${CODE_TEXT_SHIFT_UP}px)`,
           gap: CODE_GAP,
-          lineHeight: `${CODE_TEXT_HEIGHT}px`,
-          height: CODE_TEXT_HEIGHT,
+          lineHeight: `${textHeight}px`,
+          height: textHeight,
+          fontSize,
         }}
       >
         <span>{code.lineCode}</span>
@@ -189,7 +192,6 @@ function StationBadge({ station, options }: { station: Station; options: Options
       style={{
         position: "relative",
         display: "flex",
-        fontSize: FONT_SIZE,
         height: CODE_HEIGHT + border * 2,
         width: fullWidth,
       }}

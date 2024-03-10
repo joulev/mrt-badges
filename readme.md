@@ -30,6 +30,10 @@ Read the examples below for more details.
 
   ![Kent Ridge MRT](https://mrt-badges.joulev.dev/CC24)
 
+* Founders' Memorial MRT station: `https://mrt-badges.joulev.dev/TE22A`
+
+  ![Founders' Memorial MRT](https://mrt-badges.joulev.dev/TE22A)
+
 ### Standard Transfer Interchanges
 
 * Orchard MRT station: `https://mrt-badges.joulev.dev/TE14:NS22` (or `NS22:TE14` depending on the order you want)
@@ -93,12 +97,6 @@ Confirmed lines only, so Seletar Line is not included.
   ![Woodlands North MRT with future parts](https://r2.joulev.dev/files/uuqzj0yr9bovaohhjlaqwh2n)
 
   This may be supported in the future.
-
-* Does not support station with lettered codes yet
-
-  ![Founders' Memorial](https://r2.joulev.dev/files/v7wjgw4ptxnu1g73fjwr9ad1)
-
-  though this is certainly needed and I will work on it when I can.
 
 * Does not support "under study" stations (with the dashed border) like this
 
