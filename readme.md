@@ -120,4 +120,12 @@ Confirmed lines only, so Seletar Line is not included.
 
 * The source code is MIT licensed.
 
-* The service at `https://mrt-badges.joulev.dev` is provided free of charge on a best effort basis, meaning I will try all my best to keep it running but if personal reasons force me to bring it down, I will have to do that. Hence self-hosting is recommended, just fork this repository and deploy it on Vercel for free.
+* The service at `https://mrt-badges.joulev.dev` is provided free of charge on a best effort basis, meaning I will try all my best to keep it running but if personal reasons force me to bring it down, I will have to do that. Hence self-hosting is recommended:
+
+  [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fjoulev%2Fmrt-badges&project-name=mrt-badges&repository-name=mrt-badges)
+
+## Development
+
+* `pnpm vercel dev` to develop locally at `http://localhost:3000`
+
+* `pnpm check` to run Biome checks
