@@ -9,18 +9,22 @@ import type { Station, StationCode, StationCodePart } from "./types";
 // reasons (probably Satori's fault), but the ttf file uploaded in the issue works fine.
 const FONT_URL = "https://r2.joulev.dev/files/v9w4vh2nf0t8mxk71y4zi4xs";
 
-const FONT_SIZE = 27;
-const BORDER = 2;
-const CODE_WIDTH = 84;
-const CODE_HEIGHT = 50;
-const CODE_GAP = 4;
-const CODE_TEXT_HEIGHT = 19;
-const CODE_SEPARATOR_WIDTH = 3;
-const PART_BORDER_RADIUS_X = 15;
-const PART_GAP = 24;
-const PART_CONNECTOR_WIDTH = 30; // enough to overlap the borders of the parts
-const PART_CONNECTOR_HEIGHT = 11;
-const PART_CONNECTOR_DX = 2;
+// Increase this for easier development
+const SCALE = 1;
+
+const FONT_SIZE = 27 * SCALE;
+const BORDER = 2 * SCALE;
+const CODE_WIDTH = 84 * SCALE;
+const CODE_HEIGHT = 50 * SCALE;
+const CODE_GAP = 4 * SCALE;
+const CODE_TEXT_HEIGHT = 19 * SCALE;
+const CODE_TEXT_SHIFT_UP = 1 * SCALE;
+const CODE_SEPARATOR_WIDTH = 3 * SCALE;
+const PART_BORDER_RADIUS_X = 15 * SCALE;
+const PART_GAP = 24 * SCALE;
+const PART_CONNECTOR_WIDTH = 30 * SCALE; // enough to overlap the borders of the parts
+const PART_CONNECTOR_HEIGHT = 11 * SCALE;
+const PART_CONNECTOR_DX = 2 * SCALE;
 const BORDER_COLOUR = "white";
 
 async function getFont() {
@@ -46,6 +50,7 @@ function StationCodeDisplay({ code }: { code: StationCode }) {
         style={{
           display: "flex",
           flexDirection: "row",
+          transform: `translateY(-${CODE_TEXT_SHIFT_UP}px)`,
           gap: CODE_GAP,
           lineHeight: `${CODE_TEXT_HEIGHT}px`,
           height: CODE_TEXT_HEIGHT,
