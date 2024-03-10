@@ -15,7 +15,13 @@ const lineColour: Record<string, LineColour> = {
   DT: { bg: "#015ca7", fg: "white" },
   // Thomson–East Coast Line
   TE: { bg: "#9d5b24", fg: "white" },
-  // Other lines will be added later
+  // Jurong Region Line
+  JS: { bg: "#00b0bd", fg: "white" },
+  JW: { bg: "#00b0bd", fg: "white" },
+  JE: { bg: "#00b0bd", fg: "white" },
+  // Cross Island Line
+  CR: { bg: "#94c73d", fg: "black" },
+  CP: { bg: "#94c73d", fg: "black" },
   // LRT colours
   default: { bg: "#718573", fg: "white" },
 };
