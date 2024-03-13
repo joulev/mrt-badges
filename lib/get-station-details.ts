@@ -13,8 +13,8 @@ const lineColour: Record<string, LineColour> = {
   NE: { bg: "#9E28B5", fg: "white" },
   // Circle Line
   // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_CircleLine.svg
-  CC: { bg: "#FF9E18", fg: "black" },
-  CE: { bg: "#FF9E18", fg: "black" },
+  CC: { bg: "#FF9E18", fg: "#231F20" },
+  CE: { bg: "#FF9E18", fg: "#231F20" },
   // Downtown Line
   // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Downtown_Line.svg
   DT: { bg: "#005DA6", fg: "white" },
@@ -30,8 +30,8 @@ const lineColour: Record<string, LineColour> = {
   JE: { bg: "#0099AA", fg: "white" },
   // Cross Island Line
   // Official high quality source: https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line/_jcr_content/par/image.img.png/1663662075251.png
-  CR: { bg: "#94C83D", fg: "black" },
-  CP: { bg: "#94C83D", fg: "black" },
+  CR: { bg: "#94C83D", fg: "#2C2925" },
+  CP: { bg: "#94C83D", fg: "#2C2925" },
   // LRT colours
   // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Bukit_Panjang_LRT.svg
   default: { bg: "#718472", fg: "white" },
