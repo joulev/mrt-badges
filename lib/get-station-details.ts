@@ -2,29 +2,39 @@ import type { LineColour, Station, StationCode } from "./types";
 
 const lineColour: Record<string, LineColour> = {
   // North–South Line
-  NS: { bg: "#e22726", fg: "white" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_NorthSouthLine.svg
+  NS: { bg: "#E1251B", fg: "white" },
   // East–West Line
-  EW: { bg: "#01964c", fg: "white" },
-  CG: { bg: "#01964c", fg: "white" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_EastWestLine.svg
+  EW: { bg: "#00953B", fg: "white" },
+  CG: { bg: "#00953B", fg: "white" },
   // North East Line
-  NE: { bg: "#8f4199", fg: "white" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_NorthEastLine.svg
+  NE: { bg: "#9E28B5", fg: "white" },
   // Circle Line
-  CC: { bg: "#f99d25", fg: "black" },
-  CE: { bg: "#f99d25", fg: "black" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_CircleLine.svg
+  CC: { bg: "#FF9E18", fg: "black" },
+  CE: { bg: "#FF9E18", fg: "black" },
   // Downtown Line
-  DT: { bg: "#015ca7", fg: "white" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Downtown_Line.svg
+  DT: { bg: "#005DA6", fg: "white" },
   // Thomson–East Coast Line
-  TE: { bg: "#9d5b24", fg: "white" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Thomson_East_Coast_Line.svg
+  TE: { bg: "#9D5918", fg: "white" },
   // Jurong Region Line
-  JR: { bg: "#00b0bd", fg: "white" },
-  JS: { bg: "#00b0bd", fg: "white" },
-  JW: { bg: "#00b0bd", fg: "white" },
-  JE: { bg: "#00b0bd", fg: "white" },
+  // Unofficial source (slightly inaccurate): https://en.wikipedia.org/wiki/Module:Adjacent_stations/SMRT
+  // Unable to find official high quality or vector sources as of 13 March 2024
+  JR: { bg: "#0099AA", fg: "white" },
+  JS: { bg: "#0099AA", fg: "white" },
+  JW: { bg: "#0099AA", fg: "white" },
+  JE: { bg: "#0099AA", fg: "white" },
   // Cross Island Line
-  CR: { bg: "#94c73d", fg: "black" },
-  CP: { bg: "#94c73d", fg: "black" },
+  // Official high quality source: https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line/_jcr_content/par/image.img.png/1663662075251.png
+  CR: { bg: "#94C83D", fg: "black" },
+  CP: { bg: "#94C83D", fg: "black" },
   // LRT colours
-  default: { bg: "#718573", fg: "white" },
+  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Bukit_Panjang_LRT.svg
+  default: { bg: "#718472", fg: "white" },
 };
 
 export function getStationDetails(station: string): Station {
