@@ -24,10 +24,10 @@ const lineColour: Record<string, LineColour> = {
   // Jurong Region Line
   // Unofficial source (slightly inaccurate): https://en.wikipedia.org/wiki/Module:Adjacent_stations/SMRT
   // Unable to find official high quality or vector sources as of 13 March 2024
-  JR: { bg: "#0099AA", fg: "white" },
-  JS: { bg: "#0099AA", fg: "white" },
-  JW: { bg: "#0099AA", fg: "white" },
-  JE: { bg: "#0099AA", fg: "white" },
+  JR: { bg: "#00B0BE", fg: "white" },
+  JS: { bg: "#00B0BE", fg: "white" },
+  JW: { bg: "#00B0BE", fg: "white" },
+  JE: { bg: "#00B0BE", fg: "white" },
   // Cross Island Line
   // Official high quality source: https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line/_jcr_content/par/image.img.png/1663662075251.png
   CR: { bg: "#94C83D", fg: "#2C2925" },
