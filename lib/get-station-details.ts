@@ -17,6 +17,7 @@ const lineColour: Record<string, LineColour> = {
   CE: { bg: "#FF9E18", fg: "#231F20" },
   // Downtown Line
   // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Downtown_Line.svg
+  DE: { bg: "#005DA6", fg: "white" },
   DT: { bg: "#005DA6", fg: "white" },
   // Thomson–East Coast Line
   // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Thomson_East_Coast_Line.svg
