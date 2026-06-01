@@ -13,6 +13,7 @@ where the station identifier is as follows:
 * Each line part of each station starts with the line identifier followed by an optional number
 * Standard transfer stations are separated by `:`
 * Tap out to transfer stations are separated by `-`
+* Wrap a code in curly braces (e.g. `{JW1}`) to render it with the dashed "under study" border. Only the wrapped code is dashed, so the rest of the badge keeps its solid border. (Some clients require the braces to be URL-encoded as `%7B` and `%7D`.)
 
 Read the examples below for more details.
 
@@ -53,6 +54,18 @@ Read the examples below for more details.
 * Newton MRT station: `https://mrt-badges.joulev.dev/NS21-DT11`
 
   ![Newton MRT](https://mrt-badges.joulev.dev/NS21-DT11)
+
+### Under Study Stations
+
+Stations still "under study" on the future system map use a dashed border instead of a solid one. Wrap a code in curly braces to get this border. The brace applies to a single code, so you can mix a dashed "under study" code with solid existing codes in the same badge.
+
+* A standalone under study station: `https://mrt-badges.joulev.dev/{JW1}`
+
+  ![Under study station](https://mrt-badges.joulev.dev/%7BJW1%7D)
+
+* An under study line meeting an existing station, where only the new code gets the dashed border: `https://mrt-badges.joulev.dev/{JW1}:NS6`
+
+  ![Under study interchange](https://mrt-badges.joulev.dev/%7BJW1%7D:NS6)
 
 ### LRT Stations
 
@@ -97,10 +110,6 @@ Confirmed lines only, so Seletar Line is not included.
   ![Woodlands North MRT with future parts](https://r2.joulev.dev/files/uuqzj0yr9bovaohhjlaqwh2n)
 
   This may be supported in the future.
-
-* Does not support "under study" stations (with the dashed border) like this
-
-  ![Future Sungei Kadut MRT](https://r2.joulev.dev/files/zl48bqd6p2a6duy4fojvt93h)
 
 * Only supports horizontal for now, so an arbitrary direction like this is not supported
 

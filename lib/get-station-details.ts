@@ -45,8 +45,13 @@ export function getStationDetails(station: string): Station {
     .map(connectedPart =>
       connectedPart
         .split(":")
-        .map((code): StationCode | null => {
-          const match = /(?<line>[A-Z]+)(?<num>\d*[A-Z]?)/.exec(code);
+        .map((rawCode): StationCode | null => {
+          // A code wrapped in curly braces (e.g. `{JW1}`) is an "under study" station, rendered
+          // with a dashed border. The braces are stripped before parsing the line code and number.
+          const code = rawCode.trim();
+          const underStudy = code.startsWith("{") && code.endsWith("}");
+          const inner = underStudy ? code.slice(1, -1) : code;
+          const match = /(?<line>[A-Z]+)(?<num>\d*[A-Z]?)/.exec(inner);
           if (!match?.groups) return null;
           const lineCode = match.groups.line;
           const colour =
@@ -55,7 +60,7 @@ export function getStationDetails(station: string): Station {
               : lineCode.endsWith("L") && lineCode.slice(0, -1) in lineColour
                 ? lineColour[lineCode.slice(0, -1)]
                 : lineColour.default;
-          return { lineCode, number: match.groups.num, colour };
+          return { lineCode, number: match.groups.num, colour, underStudy };
         })
         .filter((x): x is StationCode => Boolean(x)),
     )
