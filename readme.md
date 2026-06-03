@@ -59,13 +59,13 @@ Read the examples below for more details.
 
 Stations still "under study" on the future system map use a dashed border instead of a solid one. Wrap a code in curly braces to get this border. The brace applies to a single code, so you can mix a dashed "under study" code with solid existing codes in the same badge.
 
-* A standalone under study station: `https://mrt-badges.joulev.dev/{JW1}`
+* A standalone under study station: `https://mrt-badges.joulev.dev/{JS2A}`
 
-  ![Under study station](https://mrt-badges.joulev.dev/%7BJW1%7D)
+  ![Under study station](https://mrt-badges.joulev.dev/%7BJS2A%7D)
 
-* An under study line meeting an existing station, where only the new code gets the dashed border: `https://mrt-badges.joulev.dev/{JW1}:NS6`
+* An under study line meeting an existing station, where only the new code gets the dashed border: `https://mrt-badges.joulev.dev/{JS2A}:NS6`
 
-  ![Under study interchange](https://mrt-badges.joulev.dev/%7BJW1%7D:NS6)
+  ![Under study interchange](https://mrt-badges.joulev.dev/%7BJS2A%7D:NS6)
 
 ### LRT Stations
 
