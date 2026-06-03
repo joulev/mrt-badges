@@ -469,14 +469,26 @@ function renderInvalidStationBadge(metrics: RenderMetrics, font: Font) {
   );
 }
 
+function getLineColourCacheKey(options: Options) {
+  if (!options.lineColours) return "";
+
+  return Object.keys(options.lineColours)
+    .sort()
+    .map(lineCode => {
+      const colour = options.lineColours?.[lineCode];
+      return `${lineCode}:${colour?.bg ?? ""}:${colour?.fg ?? ""}`;
+    })
+    .join("|");
+}
+
 export async function generateSvg(rawStation: string, options: Options) {
   const border = options.border || BORDER;
-  const cacheKey = `svg-v2-${rawStation}-${border}`;
+  const cacheKey = `svg-v3-${rawStation}-${border}-${getLineColourCacheKey(options)}`;
   const cachedSvg = svgCache.get(cacheKey);
   if (cachedSvg) return cachedSvg;
 
   const metrics = getRenderMetrics(border);
-  const station = getStationDetails(rawStation);
+  const station = getStationDetails(rawStation, options.lineColours);
   const font = await getLtaFont();
   const svg =
     station.length > 0

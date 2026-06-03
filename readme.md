@@ -14,6 +14,7 @@ where the station identifier is as follows:
 * Standard transfer stations are separated by `:`
 * Tap out to transfer stations are separated by `-`
 * Wrap a code in curly braces (e.g. `{JW1}`) to render it with the dashed "under study" border. Only the wrapped code is dashed, so the rest of the badge keeps its solid border. (Some clients require the braces to be URL-encoded as `%7B` and `%7D`.)
+* Use `?bg_<lineCode>=<hex>` to set a custom line background colour and `?fg_<lineCode>=<hex|dark|light>` to set a custom line foreground colour. The line code in the query parameter is case-insensitive, and custom backgrounds default to light foreground text. Example: `?bg_sl=d685a6`. Do not use `#`, as that would be treated as a URL fragment and would not even reach the rendering server!
 
 Read the examples below for more details.
 
@@ -55,18 +56,6 @@ Read the examples below for more details.
 
   ![Newton MRT](https://mrt-badges.joulev.dev/NS21-DT11)
 
-### Under Study Stations
-
-Stations still "under study" on the future system map use a dashed border instead of a solid one. Wrap a code in curly braces to get this border. The brace applies to a single code, so you can mix a dashed "under study" code with solid existing codes in the same badge.
-
-* A standalone under study station: `https://mrt-badges.joulev.dev/{JS2A}`
-
-  ![Under study station](https://mrt-badges.joulev.dev/%7BJS2A%7D)
-
-* An under study line meeting an existing station, where only the new code gets the dashed border: `https://mrt-badges.joulev.dev/{JS2A}:NS6`
-
-  ![Under study interchange](https://mrt-badges.joulev.dev/%7BJS2A%7D:NS6)
-
 ### LRT Stations
 
 * Sengkang MRT/LRT station: `https://mrt-badges.joulev.dev/NE16:STC`
@@ -93,6 +82,28 @@ Confirmed lines only, so Seletar Line is not included.
 
   ![Jurong East MRT](https://mrt-badges.joulev.dev/JE5:NS1:EW24)
 
+### Under Study Stations
+
+Stations still "under study" on the future system map use a dashed border instead of a solid one. Wrap a code in curly braces to get this border. The brace applies to a single code, so you can mix a dashed "under study" code with solid existing codes in the same badge.
+
+* JS2A MRT station: `https://mrt-badges.joulev.dev/{JS2A}`
+
+  ![Under study station](https://mrt-badges.joulev.dev/%7BJS2A%7D)
+
+* An under study line meeting an existing station, where only the new code gets the dashed border: `https://mrt-badges.joulev.dev/{JS2A}:NS6`
+
+  ![Under study interchange](https://mrt-badges.joulev.dev/%7BJS2A%7D:NS6)
+
+### Custom Line Colours
+
+* Say there is a Long Island line, `#123456` in the future. Then: `https://mrt-badges.joulev.dev/LL1?bg_ll=123456`
+
+  ![LL1 station](https://mrt-badges.joulev.dev/LL1?bg_ll=123456)
+
+* Custom background and foreground colours: `https://mrt-badges.joulev.dev/SL1:TE1?bg_sl=fda5d1&fg_sl=dark`
+
+  ![SL1 station](https://mrt-badges.joulev.dev/SL1:TE1?bg_sl=fda5d1&fg_sl=dark)
+
 ### Why not, go wild!
 
 * Downtown MRT and Marina Bay MRT are within a 15 minute walk so can be treated as one tap out to transfer station: `https://mrt-badges.joulev.dev/DT17-NS27:TE20:CE2`
@@ -104,12 +115,6 @@ Confirmed lines only, so Seletar Line is not included.
   ![This station doesn't exist](https://mrt-badges.joulev.dev/EW1-NS2:NE3-CC4-DT5:TE6:CR7-JS8)
 
 ## Limitations
-
-* Does not support a custom colour scheme and additional lines yet
-
-  ![Woodlands North MRT with future parts](https://r2.joulev.dev/files/uuqzj0yr9bovaohhjlaqwh2n)
-
-  This may be supported in the future.
 
 * Only supports horizontal for now, so an arbitrary direction like this is not supported
 

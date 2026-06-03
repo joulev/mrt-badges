@@ -3,6 +3,8 @@ export interface LineColour {
   bg: string;
 }
 
+export type LineColourOverrides = Record<string, Partial<LineColour>>;
+
 export interface StationCode {
   lineCode: string;
   number: string;
@@ -19,4 +21,5 @@ export type Station = StationCodePart[];
 
 export interface Options {
   border?: number;
+  lineColours?: LineColourOverrides;
 }
