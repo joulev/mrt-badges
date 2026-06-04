@@ -1,10 +1,6 @@
 import opentype, { type BoundingBox, type Font } from "opentype.js";
 import { ltaFontManager } from "./cache";
 
-// The official-looking badges squeeze text slightly horizontally. Apply it as an SVG transform
-// after measuring the unsqueezed glyph advances so centering stays predictable.
-const TEXT_X_SCALE = 0.95;
-
 let ltaFontPromise: Promise<Font> | null = null;
 
 export async function getLtaFont() {
@@ -44,12 +40,10 @@ export function TextPaths({
   const positionedParts = getPositionedTextParts(font, parts, fontSize, gap);
   const textWidth = getPositionedTextWidth(font, positionedParts, fontSize);
   const baseline = getTextBaseline(font, positionedParts, fontSize, height);
-  // x/y and width describe the target badge slot. xStart shifts the whole text group so the
-  // horizontally-scaled glyphs are visually centered inside that slot.
-  const xStart = x + (width - textWidth * TEXT_X_SCALE) / 2;
+  const xStart = x + (width - textWidth) / 2;
 
   return (
-    <g transform={`translate(${xStart} ${y}) scale(${TEXT_X_SCALE} 1)`}>
+    <g transform={`translate(${xStart} ${y})`}>
       {positionedParts.map(part => (
         <path
           key={`${part.text}-${part.x}`}

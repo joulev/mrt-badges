@@ -44,8 +44,8 @@ const BORDER = 2;
 const CODE_HEIGHT = 50;
 const CODE_GAP = 4;
 const CODE_BADGE_END_FIX = 2;
-const FONT_SIZE = 30;
-const FONT_SIZE_SM = 24;
+const FONT_SIZE = 28;
+const FONT_SIZE_SM = 22;
 const CODE_SEPARATOR_WIDTH = 3;
 const PART_GAP = 24;
 const PART_CONNECTOR_WIDTH_OFFSET = 0.5;
@@ -483,7 +483,7 @@ function getLineColourCacheKey(options: Options) {
 
 export async function generateSvg(rawStation: string, options: Options) {
   const border = options.border || BORDER;
-  const cacheKey = `svg-v3-${rawStation}-${border}-${getLineColourCacheKey(options)}`;
+  const cacheKey = `svg-${rawStation}-${border}-${getLineColourCacheKey(options)}`;
   const cachedSvg = svgCache.get(cacheKey);
   if (cachedSvg) return cachedSvg;
 
