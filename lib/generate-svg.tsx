@@ -333,10 +333,10 @@ function StationPartShapes({
           <rect
             key={`${code.key}-separator`}
             fill="white"
-            height={CODE_HEIGHT}
+            height={metrics.totalHeight}
             width={CODE_SEPARATOR_WIDTH}
             x={metrics.border + code.x + code.width}
-            y={metrics.border}
+            y="0"
           />
         );
       })}
