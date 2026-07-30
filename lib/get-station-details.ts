@@ -1,16 +1,11 @@
-import type {
-  LineColour,
-  LineColourOverrides,
-  Station,
-  StationCode,
-} from "./types";
+import type { LineColour, LineColourOverrides, Station, StationCode } from "./types";
 
 export const lineForegroundColour = {
   dark: "#231F20",
   light: "white",
 } as const;
 
-const lineColour: Record<string, LineColour> = {
+export const defaultLineColours: Record<string, LineColour> = {
   // North–South Line
   // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_NorthSouthLine.svg
   NS: { bg: "#E1251B", fg: lineForegroundColour.light },
@@ -50,34 +45,30 @@ const lineColour: Record<string, LineColour> = {
 
 function getBaseLineColour(lineCode: string): LineColour {
   const lineOnlyCode = getLineOnlyCode(lineCode);
-  return lineCode in lineColour
-    ? lineColour[lineCode]
-    : lineOnlyCode && lineOnlyCode in lineColour
-      ? lineColour[lineOnlyCode]
-      : lineColour.default;
+  return lineCode in defaultLineColours
+    ? defaultLineColours[lineCode]
+    : lineOnlyCode && lineOnlyCode in defaultLineColours
+      ? defaultLineColours[lineOnlyCode]
+      : defaultLineColours.default;
 }
 
 function getLineOnlyCode(lineCode: string) {
-  return lineCode.length > 2 && lineCode.endsWith("L")
-    ? lineCode.slice(0, -1)
-    : null;
+  return lineCode.length > 2 && lineCode.endsWith("L") ? lineCode.slice(0, -1) : null;
 }
 
-function getLineColour(
-  lineCode: string,
-  overrides?: LineColourOverrides,
-): LineColour {
+function getLineColour(lineCode: string, overrides?: LineColourOverrides): LineColour {
   const baseColour = getBaseLineColour(lineCode);
   const lineOnlyCode = getLineOnlyCode(lineCode);
   const override =
     overrides?.[lineCode] ??
-    (lineOnlyCode ? overrides?.[lineOnlyCode] : undefined);
+    (lineOnlyCode ? overrides?.[lineOnlyCode] : undefined) ??
+    overrides?.default;
 
   if (!override) return baseColour;
 
   return {
     bg: override.bg ?? baseColour.bg,
-    fg: override.fg ?? (override.bg ? lineColour.default.fg : baseColour.fg),
+    fg: override.fg ?? (override.bg ? defaultLineColours.default.fg : baseColour.fg),
   };
 }
 
@@ -88,7 +79,7 @@ export function getStationDetails(
   return station
     .trim()
     .split("-")
-    .map((connectedPart) =>
+    .map(connectedPart =>
       connectedPart
         .split(":")
         .map((rawCode): StationCode | null => {
@@ -105,5 +96,5 @@ export function getStationDetails(
         })
         .filter((x): x is StationCode => Boolean(x)),
     )
-    .filter((part) => part.length > 0);
+    .filter(part => part.length > 0);
 }

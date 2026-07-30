@@ -2,6 +2,12 @@
 
 A small service rendering the SVG station badges of Singapore MRT stations. You can then use the SVGs in your designs or render them in your website or do anything you want.
 
+The homepage at [`https://mrt-badges.joulev.dev`](https://mrt-badges.joulev.dev) is an interactive React badge maker. It renders badges directly in the browser and can export them as SVG or PNG. Advanced settings include:
+
+* LTA Identity and selected popular sans-serif families from Fontsource, fetched on demand with selectable weights, or an uploaded TTF, OTF, or WOFF font
+* Border, type, and PNG output sizing
+* Editable foreground and background colours for every line, including custom line codes
+
 ## Usage
 
 ```
@@ -136,6 +142,8 @@ Stations still "under study" on the future system map use a dashed border instea
 
 ## Development
 
-* `bun dev` to develop locally at `http://localhost:3000`
+* `bun dev` to build and watch the React and Tailwind frontend while running the service at `http://localhost:3000`
 
 * `bun check` to run Biome checks
+
+* `bun run build` to create a production frontend bundle and type-check the project

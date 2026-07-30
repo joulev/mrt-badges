@@ -1,3 +1,5 @@
+import type { Font } from "opentype.js";
+
 export interface LineColour {
   fg: string;
   bg: string;
@@ -21,5 +23,7 @@ export type Station = StationCodePart[];
 
 export interface Options {
   border?: number;
+  font?: Font;
+  fontSize?: number;
   lineColours?: LineColourOverrides;
 }

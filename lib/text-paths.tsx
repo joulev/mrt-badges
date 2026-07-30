@@ -1,4 +1,4 @@
-import opentype, { type BoundingBox, type Font } from "opentype.js";
+import opentype, { type BoundingBox, type Font, type Glyph } from "opentype.js";
 import { ltaFontManager } from "./cache";
 
 let ltaFontPromise: Promise<Font> | null = null;
@@ -47,7 +47,7 @@ export function TextPaths({
       {positionedParts.map(part => (
         <path
           key={`${part.text}-${part.x}`}
-          d={font.getPath(part.text, part.x, baseline, fontSize).toPathData(1)}
+          d={getTextPathData(font, part.text, part.x, baseline, fontSize)}
           fill={colour}
         />
       ))}
@@ -60,7 +60,9 @@ function getPositionedTextParts(font: Font, parts: string[], fontSize: number, g
   // the "14" path starts at advance("TE") + gap; for a single ["TEL"] part, it starts at 0.
   return parts.reduce<{ text: string; x: number }[]>((result, text) => {
     const previousPart = result.at(-1);
-    const previousAdvance = previousPart ? font.getAdvanceWidth(previousPart.text, fontSize) : 0;
+    const previousAdvance = previousPart
+      ? getTextAdvanceWidth(font, previousPart.text, fontSize)
+      : 0;
     const previousGap = previousPart ? gap : 0;
     const x = previousPart ? previousPart.x + previousAdvance + previousGap : 0;
     result.push({ text, x });
@@ -76,7 +78,7 @@ function getPositionedTextWidth(
   // The text group width is the start of the final part plus its advance. With ["TE", "14"], this
   // includes the explicit line-code/number gap; with ["TEL"], it is just advance("TEL").
   const lastPart = parts.at(-1);
-  return lastPart ? lastPart.x + font.getAdvanceWidth(lastPart.text, fontSize) : 0;
+  return lastPart ? lastPart.x + getTextAdvanceWidth(font, lastPart.text, fontSize) : 0;
 }
 
 function getTextBaseline(
@@ -90,11 +92,55 @@ function getTextBaseline(
   //
   // Example: if "TE14" at y=0 has bounds y=-21..0 and the badge is 54px tall, the visual center is
   // -10.5. Moving the baseline to 27 - (-10.5) = 37.5 puts the glyph bounds around the badge center.
-  const boxes = parts.map(part => font.getPath(part.text, part.x, 0, fontSize).getBoundingBox());
+  const boxes = parts.flatMap(part =>
+    getPositionedGlyphs(font, part.text, fontSize).map(positionedGlyph =>
+      positionedGlyph.glyph
+        .getPath(part.x + positionedGlyph.x, 0, fontSize, undefined, font)
+        .getBoundingBox(),
+    ),
+  );
   const box = mergeBoundingBoxes(boxes);
   if (!box) return height / 2;
 
   return height / 2 - (box.y1 + box.y2) / 2;
+}
+
+function getPositionedGlyphs(font: Font, text: string, fontSize: number) {
+  const scale = fontSize / font.unitsPerEm;
+  const positionedGlyphs: { glyph: Glyph; x: number }[] = [];
+  let cursor = 0;
+  let previousGlyph: Glyph | null = null;
+
+  for (const character of text) {
+    const glyph = font.charToGlyph(character);
+    if (previousGlyph) {
+      cursor += font.getKerningValue(previousGlyph, glyph) * scale;
+    }
+    positionedGlyphs.push({ glyph, x: cursor });
+    cursor += (glyph.advanceWidth ?? font.unitsPerEm) * scale;
+    previousGlyph = glyph;
+  }
+
+  return positionedGlyphs;
+}
+
+function getTextAdvanceWidth(font: Font, text: string, fontSize: number) {
+  const positionedGlyphs = getPositionedGlyphs(font, text, fontSize);
+  const lastGlyph = positionedGlyphs.at(-1);
+  if (!lastGlyph) return 0;
+  return (
+    lastGlyph.x + (lastGlyph.glyph.advanceWidth ?? font.unitsPerEm) * (fontSize / font.unitsPerEm)
+  );
+}
+
+function getTextPathData(font: Font, text: string, x: number, y: number, fontSize: number) {
+  return getPositionedGlyphs(font, text, fontSize)
+    .map(positionedGlyph =>
+      positionedGlyph.glyph
+        .getPath(x + positionedGlyph.x, y, fontSize, undefined, font)
+        .toPathData(1),
+    )
+    .join("");
 }
 
 function mergeBoundingBoxes(boxes: BoundingBox[]) {

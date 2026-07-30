@@ -347,13 +347,18 @@ function StationPartShapes({
 function StationCodeText({
   code,
   font,
+  fontSize,
   metrics,
 }: {
   code: RenderedStationCode;
   font: Font;
+  fontSize: number;
   metrics: RenderMetrics;
 }) {
-  const fontSize = code.lineCode.length + code.number.length > 4 ? FONT_SIZE_SM : FONT_SIZE;
+  const resolvedFontSize =
+    code.lineCode.length + code.number.length > 4
+      ? fontSize * (FONT_SIZE_SM / FONT_SIZE)
+      : fontSize;
   // "W" is too wide, so need special offset to make it still look visually centered
   // This is also performed in official LTA badges for EWL too. Not sure about JW for JRL
   const xOffset =
@@ -367,7 +372,7 @@ function StationCodeText({
     <TextPaths
       colour={code.underStudy ? code.colour.bg : code.colour.fg}
       font={font}
-      fontSize={fontSize}
+      fontSize={resolvedFontSize}
       gap={CODE_GAP}
       height={CODE_HEIGHT}
       parts={code.number ? [code.lineCode, code.number] : [code.lineCode]}
@@ -380,17 +385,25 @@ function StationCodeText({
 
 function StationPartText({
   font,
+  fontSize,
   metrics,
   part,
 }: {
   font: Font;
+  fontSize: number;
   metrics: RenderMetrics;
   part: RenderedStationPart;
 }) {
   return (
     <g>
       {part.codes.map(code => (
-        <StationCodeText key={`${code.key}-text`} code={code} font={font} metrics={metrics} />
+        <StationCodeText
+          key={`${code.key}-text`}
+          code={code}
+          font={font}
+          fontSize={fontSize}
+          metrics={metrics}
+        />
       ))}
     </g>
   );
@@ -401,6 +414,7 @@ function renderStationBadge(
   station: Station,
   metrics: RenderMetrics,
   font: Font,
+  fontSize: number,
 ) {
   const layout = getStationLayout(station);
   const width = layout.width + metrics.border * 2;
@@ -438,7 +452,13 @@ function renderStationBadge(
         />
       ))}
       {layout.parts.map(part => (
-        <StationPartText key={`${part.key}-text`} font={font} metrics={metrics} part={part} />
+        <StationPartText
+          key={`${part.key}-text`}
+          font={font}
+          fontSize={fontSize}
+          metrics={metrics}
+          part={part}
+        />
       ))}
     </svg>,
   );
@@ -482,19 +502,21 @@ function getLineColourCacheKey(options: Options) {
 }
 
 export async function generateSvg(rawStation: string, options: Options) {
-  const border = options.border || BORDER;
-  const cacheKey = `svg-${rawStation}-${border}-${getLineColourCacheKey(options)}`;
-  const cachedSvg = svgCache.get(cacheKey);
+  const border = options.border ?? BORDER;
+  const fontSize = options.fontSize ?? FONT_SIZE;
+  const shouldCache = !options.font;
+  const cacheKey = `svg-${rawStation}-${border}-${fontSize}-${getLineColourCacheKey(options)}`;
+  const cachedSvg = shouldCache ? svgCache.get(cacheKey) : undefined;
   if (cachedSvg) return cachedSvg;
 
   const metrics = getRenderMetrics(border);
   const station = getStationDetails(rawStation, options.lineColours);
-  const font = await getLtaFont();
+  const font = options.font ?? (await getLtaFont());
   const svg =
     station.length > 0
-      ? renderStationBadge(getStationClipIdPrefix(rawStation), station, metrics, font)
+      ? renderStationBadge(getStationClipIdPrefix(rawStation), station, metrics, font, fontSize)
       : renderInvalidStationBadge(metrics, font);
 
-  svgCache.set(cacheKey, svg);
+  if (shouldCache) svgCache.set(cacheKey, svg);
   return svg;
 }

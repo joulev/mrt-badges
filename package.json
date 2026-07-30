@@ -1,11 +1,15 @@
 {
   "scripts": {
+    "build:client": "bun build frontend/main.tsx --outfile static/dist/app.js --target browser --minify && bunx @tailwindcss/cli -i frontend/styles.css -o static/dist/styles.css --minify",
     "check": "biome check .",
     "check:ci": "biome ci .",
+    "dev:client:css": "bunx @tailwindcss/cli -i frontend/styles.css -o static/dist/styles.css --watch",
+    "dev:client:js": "bun build frontend/main.tsx --outfile static/dist/app.js --target browser --watch",
+    "dev:server": "bun run --watch index.ts",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "dev": "bun run index.ts --watch",
-    "build": "tsc --noEmit",
+    "dev": "bun run build:client && concurrently --kill-others \"bun run dev:server\" \"bun run dev:client:js\" \"bun run dev:client:css\"",
+    "build": "bun run build:client && tsc --noEmit",
     "start": "bun run index.ts"
   },
   "dependencies": {
@@ -16,9 +20,16 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.3",
     "lru-cache": "11.2.2",
+    "lucide-react": "1.27.0",
     "opentype.js": "2.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "typescript": "5.9.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "@tailwindcss/forms": "0.5.11",
+    "concurrently": "10.0.4",
+    "tailwindcss": "4.3.3"
   }
 }
