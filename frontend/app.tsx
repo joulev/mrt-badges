@@ -365,7 +365,7 @@ function LineBadgePreview({
   return (
     <span
       aria-label={`${code} badge preview`}
-      className="block w-fit [&_svg]:block [&_svg]:h-8 [&_svg]:w-auto"
+      className="block w-fit [&_svg]:block [&_svg]:h-8 [&_svg]:w-auto [&_svg]:overflow-visible"
       dangerouslySetInnerHTML={{ __html: previewSvg }}
       role="img"
     />
