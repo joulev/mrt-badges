@@ -1,46 +1,37 @@
 import type { LineColour, LineColourOverrides, Station, StationCode } from "./types";
 
 export const lineForegroundColour = {
-  dark: "#231F20",
+  dark: "#2E2A25",
   light: "white",
 } as const;
 
+// Digital-sign palette from the LTA identity guideline.
 export const defaultLineColours: Record<string, LineColour> = {
   // North–South Line
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_NorthSouthLine.svg
-  NS: { bg: "#E1251B", fg: lineForegroundColour.light },
+  NS: { bg: "#DF2827", fg: lineForegroundColour.light },
   // East–West Line
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_EastWestLine.svg
-  EW: { bg: "#00953B", fg: lineForegroundColour.light },
-  CG: { bg: "#00953B", fg: lineForegroundColour.light },
+  EW: { bg: "#009645", fg: lineForegroundColour.light },
+  CG: { bg: "#009645", fg: lineForegroundColour.light },
   // North East Line
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_NorthEastLine.svg
-  NE: { bg: "#9E28B5", fg: lineForegroundColour.light },
+  NE: { bg: "#9900AB", fg: lineForegroundColour.light },
   // Circle Line
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_CircleLine.svg
-  CC: { bg: "#FF9E18", fg: lineForegroundColour.dark },
-  CE: { bg: "#FF9E18", fg: lineForegroundColour.dark },
+  CC: { bg: "#FA9E0D", fg: lineForegroundColour.dark },
+  CE: { bg: "#FA9E0D", fg: lineForegroundColour.dark },
   // Downtown Line
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Downtown_Line.svg
-  DE: { bg: "#005DA6", fg: lineForegroundColour.light },
-  DT: { bg: "#005DA6", fg: lineForegroundColour.light },
+  DE: { bg: "#0055B8", fg: lineForegroundColour.light },
+  DT: { bg: "#0055B8", fg: lineForegroundColour.light },
   // Thomson–East Coast Line
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Thomson_East_Coast_Line.svg
   TE: { bg: "#9D5918", fg: lineForegroundColour.light },
   // Jurong Region Line
-  // Unofficial source (slightly inaccurate): https://en.wikipedia.org/wiki/Module:Adjacent_stations/SMRT
-  // Unable to find official high quality or vector sources as of 13 March 2024
-  JR: { bg: "#00B0BE", fg: lineForegroundColour.light },
-  JS: { bg: "#00B0BE", fg: lineForegroundColour.light },
-  JW: { bg: "#00B0BE", fg: lineForegroundColour.light },
-  JE: { bg: "#00B0BE", fg: lineForegroundColour.light },
+  JR: { bg: "#00ADBB", fg: lineForegroundColour.light },
+  JS: { bg: "#00ADBB", fg: lineForegroundColour.light },
+  JW: { bg: "#00ADBB", fg: lineForegroundColour.light },
+  JE: { bg: "#00ADBB", fg: lineForegroundColour.light },
   // Cross Island Line
-  // Official high quality source: https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line/_jcr_content/par/image.img.png/1663662075251.png
-  CR: { bg: "#94C83D", fg: lineForegroundColour.dark },
-  CP: { bg: "#94C83D", fg: lineForegroundColour.dark },
+  CR: { bg: "#93D500", fg: lineForegroundColour.dark },
+  CP: { bg: "#93D500", fg: lineForegroundColour.dark },
   // LRT colours
-  // Official vector source: https://www.lta.gov.sg/content/dam/ltagov/img/map/mrt/Icon_Bukit_Panjang_LRT.svg
-  default: { bg: "#718472", fg: lineForegroundColour.light },
+  default: { bg: "#708270", fg: lineForegroundColour.light },
 };
 
 function getBaseLineColour(lineCode: string): LineColour {
