@@ -1,6 +1,6 @@
-import { ChevronDown, Download, Plus, RotateCcw, Trash2, X } from "lucide-react";
+import { ChevronDown, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
 import opentype, { type Font } from "opentype.js";
-import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { generateSvg } from "../lib/generate-svg";
 import { defaultLineColours } from "../lib/get-station-details";
 import type { LineColourOverrides } from "../lib/types";
@@ -25,7 +25,9 @@ interface ColourRow {
   isFallback: boolean;
 }
 
-const WEIGHTS_100_TO_900 = [100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
+const WEIGHTS_100_TO_900 = [
+  100, 200, 300, 400, 500, 600, 700, 800, 900,
+] as const;
 const WEIGHTS_200_TO_900 = [200, 300, 400, 500, 600, 700, 800, 900] as const;
 const WEIGHTS_300_TO_900 = [300, 400, 500, 600, 700, 800, 900] as const;
 
@@ -145,16 +147,7 @@ function downloadBlob(blob: Blob, filename: string) {
   document.body.append(anchor);
   anchor.click();
   anchor.remove();
-  URL.revokeObjectURL(objectUrl);
-}
-
-function getExportName(stationCode: string) {
-  const safeCode = stationCode
-    .trim()
-    .replace(/[{}]/g, "")
-    .replace(/[^a-z0-9:-]+/gi, "-")
-    .replace(/^-+|-+$/g, "");
-  return safeCode || "mrt-badge";
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
 }
 
 function SliderField({
@@ -163,6 +156,7 @@ function SliderField({
   max,
   min,
   onChange,
+  step = 1,
   suffix,
   value,
 }: {
@@ -171,13 +165,16 @@ function SliderField({
   max: number;
   min: number;
   onChange: (value: number) => void;
+  step?: number;
   suffix: string;
   value: number;
 }) {
   return (
     <label className="block">
       <span className="flex items-baseline justify-between gap-4">
-        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{label}</span>
+        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          {label}
+        </span>
         <output className="font-mono text-xs font-medium text-neutral-500 dark:text-neutral-400">
           {value}
           {suffix}
@@ -187,7 +184,8 @@ function SliderField({
         className="range-control mt-3 block w-full"
         max={max}
         min={min}
-        onChange={event => onChange(Number(event.currentTarget.value))}
+        onChange={(event) => onChange(Number(event.currentTarget.value))}
+        step={step}
         type="range"
         value={value}
       />
@@ -200,40 +198,12 @@ function SliderField({
   );
 }
 
-function DownloadButton({
-  children,
-  disabled,
-  onClick,
-  primary = false,
-}: {
-  children: ReactNode;
-  disabled: boolean;
-  onClick: () => void;
-  primary?: boolean;
-}) {
-  return (
-    <button
-      className={
-        primary
-          ? "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-neutral-950 px-4 text-sm font-semibold text-white hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 disabled:opacity-45 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 dark:focus-visible:outline-white"
-          : "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-950 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 disabled:opacity-45 dark:border-transparent dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 dark:focus-visible:outline-white"
-      }
-      disabled={disabled}
-      onClick={onClick}
-      type="button"
-    >
-      <Download aria-hidden="true" size={16} strokeWidth={2.2} />
-      {children}
-    </button>
-  );
-}
-
-function PngDownloadPopover({
+function SavePopover({
   disabled,
   onSelect,
 }: {
   disabled: boolean;
-  onSelect: (height: number) => Promise<void>;
+  onSelect: (action: "copy" | "download", height?: number) => Promise<void>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -268,14 +238,14 @@ function PngDownloadPopover({
       <button
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 text-sm font-semibold text-neutral-950 hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 disabled:opacity-45 dark:border-transparent dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 dark:focus-visible:outline-white sm:w-auto"
+        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-950 px-4 text-sm font-semibold text-white hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 disabled:opacity-45 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 dark:focus-visible:outline-white sm:w-auto"
         disabled={disabled}
-        onClick={() => setOpen(current => !current)}
+        onClick={() => setOpen((current) => !current)}
         ref={triggerRef}
         type="button"
       >
-        <Download aria-hidden="true" size={16} strokeWidth={2.2} />
-        Download PNG
+        <Save aria-hidden="true" size={16} strokeWidth={2.2} />
+        Save
         <ChevronDown
           aria-hidden="true"
           className={`transition-transform ${open ? "rotate-180" : ""}`}
@@ -285,23 +255,35 @@ function PngDownloadPopover({
 
       {open ? (
         <div
-          aria-label="Choose PNG badge height"
-          className="absolute left-0 top-full z-20 mt-2 w-44 rounded-lg border border-neutral-200 bg-white p-2 text-neutral-800 shadow-xl dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 sm:left-auto sm:right-0"
+          aria-label="Save badge"
+          className="absolute left-0 top-full z-20 mt-2 w-max max-w-[calc(100vw-3rem)] rounded-lg border border-neutral-200 bg-white p-2 text-neutral-800 shadow-xl dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 sm:left-auto sm:right-0"
           role="dialog"
         >
           <div className="grid gap-1">
-            {PNG_HEIGHT_PRESETS.map(height => (
-              <button
-                className="min-h-10 rounded-md px-3 text-left text-sm font-semibold hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-900 dark:hover:bg-neutral-700 dark:focus-visible:outline-neutral-100"
-                key={height}
-                onClick={() => {
-                  setOpen(false);
-                  void onSelect(height);
-                }}
-                type="button"
+            {[undefined, ...PNG_HEIGHT_PRESETS].map((height) => (
+              <div
+                className={`flex items-center ${height === undefined ? "mb-1 border-b border-neutral-200 pb-2 dark:border-neutral-700" : ""}`}
+                key={height ?? "svg"}
               >
-                {height}px height
-              </button>
+                <span className="mr-auto px-2 pr-6 text-sm whitespace-nowrap">
+                  {height ? `PNG (${height}px)` : "SVG"}
+                </span>
+                {(["copy", "download"] as const).map((action) => (
+                  <button
+                    aria-label={`${action === "copy" ? "Copy" : "Download"} ${height ? `PNG at ${height}px height` : "SVG"}`}
+                    className="min-h-10 rounded-md px-3 text-sm! font-semibold hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-neutral-900 dark:hover:bg-neutral-700 dark:focus-visible:outline-neutral-100"
+                    key={action}
+                    onClick={() => {
+                      setOpen(false);
+                      triggerRef.current?.focus();
+                      void onSelect(action, height);
+                    }}
+                    type="button"
+                  >
+                    {action === "copy" ? "Copy" : "Download"}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         </div>
@@ -346,7 +328,7 @@ function LineBadgePreview({
         [previewLineCode]: { bg: safeBg, fg: safeFg },
       },
     })
-      .then(result => {
+      .then((result) => {
         if (!cancelled) setPreviewSvg(result);
       })
       .catch(() => {
@@ -380,7 +362,7 @@ export function App() {
   const [border, setBorder] = useState(2);
   const [colourRows, setColourRows] = useState(createDefaultColourRows);
   const [customFont, setCustomFont] = useState<CustomFont | null>(null);
-  const [downloadError, setDownloadError] = useState("");
+  const [exportError, setExportError] = useState("");
   const [fontError, setFontError] = useState("");
   const [fontSelection, setFontSelection] = useState("lta-identity");
   const [fontSize, setFontSize] = useState(28);
@@ -390,7 +372,9 @@ export function App() {
   const [stationCode, setStationCode] = useState("NS24:NE6:CC1");
   const [svg, setSvg] = useState("");
 
-  const selectedFontChoice = FONT_CHOICES.find(choice => choice.id === fontSelection);
+  const selectedFontChoice = FONT_CHOICES.find(
+    (choice) => choice.id === fontSelection,
+  );
   const stationCodeState = useMemo(() => {
     const trimmedStationCode = stationCode.trim();
     if (!trimmedStationCode) return "empty";
@@ -421,7 +405,9 @@ export function App() {
       return;
     }
 
-    const fontChoice = FONT_CHOICES.find(choice => choice.id === fontSelection);
+    const fontChoice = FONT_CHOICES.find(
+      (choice) => choice.id === fontSelection,
+    );
     if (!fontChoice) return;
 
     let cancelled = false;
@@ -445,7 +431,9 @@ export function App() {
 
       const response = await fetch(fontUrl);
       if (!response.ok) {
-        throw new Error(`Could not load ${fontChoice.label} ${resolvedWeight}.`);
+        throw new Error(
+          `Could not load ${fontChoice.label} ${resolvedWeight}.`,
+        );
       }
       const font = opentype.parse(await response.arrayBuffer());
       fontCache.set(fontUrl, font);
@@ -453,12 +441,16 @@ export function App() {
     };
 
     loadFont()
-      .then(font => {
+      .then((font) => {
         if (!cancelled) setLoadedFont(font);
       })
-      .catch(error => {
+      .catch((error) => {
         if (!cancelled) {
-          setFontError(error instanceof Error ? error.message : "Could not load this font.");
+          setFontError(
+            error instanceof Error
+              ? error.message
+              : "Could not load this font.",
+          );
         }
       });
 
@@ -484,21 +476,34 @@ export function App() {
       fontSize,
       lineColours,
     })
-      .then(result => {
+      .then((result) => {
         if (sequence === renderSequence.current) setSvg(result);
       })
-      .catch(error => {
+      .catch((error) => {
         if (sequence === renderSequence.current) {
           setRenderError(
-            error instanceof Error ? error.message : "The badge could not be rendered.",
+            error instanceof Error
+              ? error.message
+              : "The badge could not be rendered.",
           );
         }
       });
-  }, [border, fontSize, isStationCodeValid, lineColours, loadedFont, stationCode]);
+  }, [
+    border,
+    fontSize,
+    isStationCodeValid,
+    lineColours,
+    loadedFont,
+    stationCode,
+  ]);
 
-  const updateColourRow = (id: string, field: "bg" | "code" | "fg", value: string) => {
-    setColourRows(rows =>
-      rows.map(row =>
+  const updateColourRow = (
+    id: string,
+    field: "bg" | "code" | "fg",
+    value: string,
+  ) => {
+    setColourRows((rows) =>
+      rows.map((row) =>
         row.id === id
           ? {
               ...row,
@@ -520,37 +525,66 @@ export function App() {
       setCustomFont({ font, label: file.name });
       setFontSelection("uploaded");
     } catch {
-      setFontError("That font could not be read. Try a TTF, OTF, or WOFF file.");
+      setFontError(
+        "That font could not be read. Try a TTF, OTF, or WOFF file.",
+      );
     }
   };
 
-  const downloadSvg = () => {
-    if (!isStationCodeValid || !svg) return;
-    setDownloadError("");
-    const withDeclaration = `<?xml version="1.0" encoding="UTF-8"?>\n${svg}`;
-    downloadBlob(
-      new Blob([withDeclaration], { type: "image/svg+xml;charset=utf-8" }),
-      `${getExportName(stationCode)}.svg`,
-    );
-  };
+  const exportName =
+    stationCode
+      .trim()
+      .replace(/[{}]/g, "")
+      .replace(/[^a-z0-9-]+/gi, "-") || "mrt-badge";
 
-  const downloadPng = async (pngHeight: number) => {
+  const saveSvg = async (action: "copy" | "download") => {
     if (!isStationCodeValid || !svg) return;
-    setDownloadError("");
+    setExportError("");
 
     try {
-      const parsedSvg = new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
-      const viewBox = parsedSvg.getAttribute("viewBox")?.trim().split(/\s+/).map(Number);
+      if (action === "copy") {
+        await navigator.clipboard.writeText(svg);
+      } else {
+        downloadBlob(
+          new Blob([svg], { type: "image/svg+xml;charset=utf-8" }),
+          `${exportName}.svg`,
+        );
+      }
+    } catch {
+      setExportError(
+        `The SVG could not be ${action === "copy" ? "copied to the clipboard" : "downloaded"}.`,
+      );
+    }
+  };
+
+  const savePng = async (action: "copy" | "download", pngHeight = 128) => {
+    if (!isStationCodeValid || !svg) return;
+    setExportError("");
+
+    try {
+      const parsedSvg = new DOMParser().parseFromString(
+        svg,
+        "image/svg+xml",
+      ).documentElement;
+      const viewBox = parsedSvg
+        .getAttribute("viewBox")
+        ?.trim()
+        .split(/\s+/)
+        .map(Number);
       if (!viewBox || viewBox.length !== 4 || !viewBox[2] || !viewBox[3]) {
         throw new Error("The badge dimensions could not be read.");
       }
 
-      const outputWidth = Math.max(1, Math.round((viewBox[2] / viewBox[3]) * pngHeight));
+      const outputWidth = Math.max(
+        1,
+        Math.round((viewBox[2] / viewBox[3]) * pngHeight),
+      );
       const canvas = document.createElement("canvas");
       canvas.width = outputWidth;
       canvas.height = pngHeight;
       const context = canvas.getContext("2d");
-      if (!context) throw new Error("PNG export is not supported by this browser.");
+      if (!context)
+        throw new Error("PNG export is not supported by this browser.");
 
       const image = new Image();
       const objectUrl = URL.createObjectURL(
@@ -559,7 +593,8 @@ export function App() {
 
       await new Promise<void>((resolve, reject) => {
         image.onload = () => resolve();
-        image.onerror = () => reject(new Error("The SVG could not be converted to PNG."));
+        image.onerror = () =>
+          reject(new Error("The SVG could not be converted to PNG."));
         image.src = objectUrl;
       });
 
@@ -567,19 +602,29 @@ export function App() {
       URL.revokeObjectURL(objectUrl);
 
       const pngBlob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(blob => {
+        canvas.toBlob((blob) => {
           if (blob) resolve(blob);
           else reject(new Error("The PNG file could not be created."));
         }, "image/png");
       });
 
-      downloadBlob(pngBlob, `${getExportName(stationCode)}-${pngHeight}px.png`);
+      if (action === "copy") {
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": pngBlob }),
+        ]);
+      } else {
+        downloadBlob(pngBlob, `${exportName}-${pngHeight}px.png`);
+      }
     } catch (error) {
-      setDownloadError(error instanceof Error ? error.message : "The PNG could not be exported.");
+      setExportError(
+        error instanceof Error
+          ? error.message
+          : "The PNG could not be exported.",
+      );
     }
   };
 
-  const canDownload = isStationCodeValid && Boolean(svg);
+  const canSave = isStationCodeValid && Boolean(svg);
   const isRendering = isStationCodeValid && !svg && !fontError && !renderError;
 
   return (
@@ -613,7 +658,9 @@ export function App() {
                 autoComplete="off"
                 className="form-input block w-full rounded-lg border-0 bg-neutral-100 py-3 pl-4 pr-12 font-mono text-xl font-bold text-neutral-950 placeholder:text-neutral-400 focus:ring-2 focus:ring-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:ring-neutral-300"
                 id="station-code"
-                onChange={event => setStationCode(event.currentTarget.value.toUpperCase())}
+                onChange={(event) =>
+                  setStationCode(event.currentTarget.value.toUpperCase())
+                }
                 placeholder="NS24:NE6:CC1"
                 ref={stationCodeInputRef}
                 spellCheck={false}
@@ -645,7 +692,7 @@ export function App() {
             </p>
             <fieldset className="mt-3 flex flex-wrap gap-2">
               <legend className="sr-only">Station code examples</legend>
-              {EXAMPLES.map(example => (
+              {EXAMPLES.map((example) => (
                 <button
                   className="rounded-md bg-neutral-100 px-3 py-1.5 font-mono text-xs font-medium text-neutral-700 hover:bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus-visible:outline-neutral-100"
                   key={example}
@@ -673,7 +720,7 @@ export function App() {
               aria-controls="advanced-settings"
               aria-expanded={advancedOpen}
               className="mt-8 flex min-h-11 w-full items-center justify-between border-t border-neutral-200 pt-4 text-left text-sm font-semibold text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:focus-visible:outline-neutral-100 lg:mt-auto"
-              onClick={() => setAdvancedOpen(open => !open)}
+              onClick={() => setAdvancedOpen((open) => !open)}
               type="button"
             >
               Advanced Settings
@@ -696,7 +743,8 @@ export function App() {
               aria-busy={isRendering}
               className="flex min-w-0 flex-1 items-center justify-center overflow-hidden py-10"
             >
-              {stationCodeState === "empty" ? null : stationCodeState === "invalid" ? (
+              {stationCodeState === "empty" ? null : stationCodeState ===
+                "invalid" ? (
                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
                   Invalid station identifier
                 </p>
@@ -715,14 +763,21 @@ export function App() {
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <PngDownloadPopover disabled={!canDownload} onSelect={downloadPng} />
-              <DownloadButton disabled={!canDownload} onClick={downloadSvg} primary>
-                Download SVG
-              </DownloadButton>
+              <SavePopover
+                disabled={!canSave}
+                onSelect={(action, height) =>
+                  height === undefined
+                    ? saveSvg(action)
+                    : savePng(action, height)
+                }
+              />
             </div>
-            {downloadError ? (
-              <p className="mt-3 text-xs text-red-700 dark:text-red-300" role="alert">
-                {downloadError}
+            {exportError ? (
+              <p
+                className="mt-3 text-xs text-red-700 dark:text-red-300"
+                role="alert"
+              >
+                {exportError}
               </p>
             ) : null}
           </div>
@@ -751,10 +806,12 @@ export function App() {
                       <select
                         className="form-select min-h-11 w-full rounded-lg border-0 bg-neutral-100 px-3 py-2.5 text-sm text-neutral-900 focus:ring-2 focus:ring-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 dark:focus:ring-neutral-300"
                         id="font-family"
-                        onChange={event => setFontSelection(event.currentTarget.value)}
+                        onChange={(event) =>
+                          setFontSelection(event.currentTarget.value)
+                        }
                         value={fontSelection}
                       >
-                        {FONT_CHOICES.map(choice => (
+                        {FONT_CHOICES.map((choice) => (
                           <option key={choice.id} value={choice.id}>
                             {choice.label}
                           </option>
@@ -795,15 +852,21 @@ export function App() {
                     </label>
                     <select
                       className="form-select mt-2 min-h-11 w-full rounded-lg border-0 bg-neutral-100 px-3 py-2.5 text-sm text-neutral-900 focus:ring-2 focus:ring-neutral-900 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-800 dark:text-neutral-100 dark:focus:ring-neutral-300"
-                      disabled={fontSelection === "uploaded" || !selectedFontChoice}
+                      disabled={
+                        fontSelection === "uploaded" || !selectedFontChoice
+                      }
                       id="font-weight"
-                      onChange={event => setFontWeight(Number(event.currentTarget.value))}
-                      value={fontSelection === "uploaded" ? "embedded" : fontWeight}
+                      onChange={(event) =>
+                        setFontWeight(Number(event.currentTarget.value))
+                      }
+                      value={
+                        fontSelection === "uploaded" ? "embedded" : fontWeight
+                      }
                     >
                       {fontSelection === "uploaded" ? (
                         <option value="embedded">File default</option>
                       ) : (
-                        selectedFontChoice?.weights.map(weight => (
+                        selectedFontChoice?.weights.map((weight) => (
                           <option key={weight} value={weight}>
                             {FONT_WEIGHT_LABELS[weight] ?? weight} · {weight}
                           </option>
@@ -828,6 +891,7 @@ export function App() {
                     max={10}
                     min={0}
                     onChange={setBorder}
+                    step={0.5}
                     suffix="px"
                     value={border}
                   />
@@ -870,7 +934,7 @@ export function App() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-neutral-200 [&>tr>td]:align-middle dark:divide-neutral-700">
-                        {colourRows.map(row => (
+                        {colourRows.map((row) => (
                           <tr key={row.id}>
                             <td className="px-4 py-3">
                               {row.isFallback ? (
@@ -882,20 +946,24 @@ export function App() {
                                   aria-label="Line code"
                                   className="form-input w-20 rounded-md border-0 bg-neutral-100 px-2.5 py-2 font-mono text-xs font-semibold uppercase text-neutral-800 focus:ring-2 focus:ring-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 dark:focus:ring-neutral-300"
                                   maxLength={8}
-                                  onChange={event =>
-                                    updateColourRow(row.id, "code", event.currentTarget.value)
+                                  onChange={(event) =>
+                                    updateColourRow(
+                                      row.id,
+                                      "code",
+                                      event.currentTarget.value,
+                                    )
                                   }
                                   value={row.code}
                                 />
                               )}
                             </td>
-                            {(["fg", "bg"] as const).map(field => (
+                            {(["fg", "bg"] as const).map((field) => (
                               <td className="px-4 py-3" key={field}>
                                 <div className="flex items-center gap-2">
                                   <input
                                     aria-label={`${row.isFallback ? "Fallback" : row.code} ${field === "fg" ? "foreground" : "background"} colour picker`}
                                     className="h-9 w-9 shrink-0 rounded-md border-0 bg-neutral-100 p-1 dark:bg-neutral-800"
-                                    onChange={event =>
+                                    onChange={(event) =>
                                       updateColourRow(
                                         row.id,
                                         field,
@@ -909,8 +977,12 @@ export function App() {
                                     aria-label={`${row.isFallback ? "Fallback" : row.code} ${field === "fg" ? "foreground" : "background"} hex colour`}
                                     className="form-input w-24 shrink-0 rounded-md border-0 bg-neutral-100 px-2 py-2 font-mono text-xs uppercase text-neutral-700 focus:ring-2 focus:ring-neutral-900 dark:bg-neutral-800 dark:text-neutral-200 dark:focus:ring-neutral-300"
                                     maxLength={7}
-                                    onChange={event =>
-                                      updateColourRow(row.id, field, event.currentTarget.value)
+                                    onChange={(event) =>
+                                      updateColourRow(
+                                        row.id,
+                                        field,
+                                        event.currentTarget.value,
+                                      )
                                     }
                                     value={row[field]}
                                   />
@@ -939,8 +1011,10 @@ export function App() {
                                   aria-label={`Remove ${row.code || "colour"} row`}
                                   className="grid h-9 w-9 place-items-center rounded-md text-neutral-400 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 dark:hover:bg-red-950 dark:hover:text-red-300 dark:focus-visible:outline-red-300"
                                   onClick={() =>
-                                    setColourRows(rows =>
-                                      rows.filter(candidate => candidate.id !== row.id),
+                                    setColourRows((rows) =>
+                                      rows.filter(
+                                        (candidate) => candidate.id !== row.id,
+                                      ),
                                     )
                                   }
                                   type="button"
@@ -958,7 +1032,7 @@ export function App() {
                 <button
                   className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-md bg-neutral-100 px-4 text-sm font-medium text-neutral-700 hover:bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:focus-visible:outline-neutral-100"
                   onClick={() =>
-                    setColourRows(rows => {
+                    setColourRows((rows) => {
                       const newRow: ColourRow = {
                         bg: "#3867D6",
                         code: "XX",
@@ -966,7 +1040,9 @@ export function App() {
                         id: nextRowId("custom"),
                         isFallback: false,
                       };
-                      const fallbackIndex = rows.findIndex(row => row.isFallback);
+                      const fallbackIndex = rows.findIndex(
+                        (row) => row.isFallback,
+                      );
 
                       if (fallbackIndex === -1) return [...rows, newRow];
 

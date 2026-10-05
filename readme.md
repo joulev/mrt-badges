@@ -2,7 +2,7 @@
 
 A small service rendering the SVG station badges of Singapore MRT stations. You can then use the SVGs in your designs or render them in your website or do anything you want.
 
-The homepage at [`https://mrt-badges.joulev.dev`](https://mrt-badges.joulev.dev) is an interactive React badge maker. It renders badges directly in the browser and can export them as SVG or PNG. Advanced settings include:
+The homepage at [`https://mrt-badges.joulev.dev`](https://mrt-badges.joulev.dev) is an interactive React badge maker. It renders badges directly in the browser and can copy or download them as SVG or PNG from the Save dropdown. Advanced settings include:
 
 * LTA Identity and selected popular sans-serif families from Fontsource, fetched on demand with selectable weights, or an uploaded TTF, OTF, or WOFF font
 * Border, type, and PNG output sizing

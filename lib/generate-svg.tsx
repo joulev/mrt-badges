@@ -1,4 +1,7 @@
+import { LRUCache } from "lru-cache";
 import type { Font } from "opentype.js";
+import paper from "paper";
+import { offsetStroke } from "paperjs-offset";
 import { renderToStaticMarkup } from "react-dom/server";
 import { svgCache } from "./cache";
 import { getStationDetails } from "./get-station-details";
@@ -61,6 +64,54 @@ const INVALID_BADGE_WIDTH = 260;
 const UNDER_STUDY_BORDER_STROKE_WIDTH = (BORDER * 4 * CODE_SVG_HEIGHT) / CODE_HEIGHT;
 const UNDER_STUDY_BORDER_DASH = UNDER_STUDY_BORDER_STROKE_WIDTH;
 
+const borderPathCache = new LRUCache<string, string>({ max: 256 });
+
+function getBorderOutline(pathData: string, strokeWidth: number, dashLength = 0) {
+  if (strokeWidth === 0) return "";
+  const key = `${pathData}:${strokeWidth}:${dashLength}`;
+  const cached = borderPathCache.get(key);
+  if (cached !== undefined) return cached;
+
+  // Figma's ordinary resize preserves stroke widths. Expand strokes into filled geometry so
+  // the border scales with the badge, including the dashes on under-study stations.
+  const project = new paper.Project(new paper.Size(1, 1));
+  try {
+    const source = new paper.CompoundPath({ pathData, insert: false });
+    const paths: paper.Path[] = [];
+    for (const child of source.children as paper.Path[]) {
+      if (!dashLength) {
+        paths.push(child);
+        continue;
+      }
+      let remaining = child.clone({ insert: false });
+      if (remaining.closed) remaining.splitAt(0);
+      let draw = true;
+      while (remaining.length > dashLength) {
+        const tail = remaining.splitAt(dashLength);
+        if (!tail) break;
+        if (draw) paths.push(remaining);
+        remaining = tail;
+        draw = !draw;
+      }
+      if (draw) paths.push(remaining);
+    }
+    const outline = paths
+      .map(
+        path =>
+          offsetStroke(path, strokeWidth / 2, {
+            join: "round",
+            cap: "butt",
+            insert: false,
+          }).pathData,
+      )
+      .join("");
+    borderPathCache.set(key, outline);
+    return outline;
+  } finally {
+    project.remove();
+  }
+}
+
 function getRenderMetrics(border: number): RenderMetrics {
   // Border thickness is configured in rendered pixels, but the badge paths are drawn in
   // CODE_SVG_* coordinates; keep both spaces aligned so strokes are not clipped.
@@ -91,7 +142,7 @@ function getStationCodeFillPath(position: StationCodePosition) {
     case "right":
       return "M0 0h188.177c13.981 0 21.923 13.52 24.027 17.66C219.364 31.8 223 47.056 223 63s-3.636 31.2-10.796 45.329C210.1 112.47 202.168 126 188.177 126H0z";
     case "single":
-      return "M212.204 17.66C210.1 13.52 202.158 0 188.177 0H34.823C20.842 0 12.9 13.52 10.797 17.66 3.636 31.8 0 47.056 0 63s3.636 31.2 10.797 45.329C12.9 112.47 20.832 126 34.823 126h153.354c13.991 0 21.923-13.52 24.027-17.671C219.364 94.191 223 78.945 223 63s-3.636-31.2-10.796-45.34";
+      return "M212.204 17.66C210.1 13.52 202.158 0 188.177 0H34.823C20.842 0 12.9 13.52 10.797 17.66 3.636 31.8 0 47.056 0 63s3.636 31.2 10.797 45.329C12.9 112.47 20.832 126 34.823 126h153.354c13.991 0 21.923-13.52 24.027-17.671C219.364 94.191 223 78.945 223 63s-3.636-31.2-10.796-45.34Z";
     case "middle":
       return "M0 63V0h223v126H0z";
   }
@@ -283,24 +334,15 @@ function StationCodeShape({
         </defs>
       ) : null}
       <path
-        d={getStationCodeBorderPath(code.position)}
-        fill="none"
-        stroke="white"
-        strokeLinecap="butt"
-        strokeLinejoin="round"
-        strokeWidth={metrics.codeBorderStrokeWidth}
+        d={getBorderOutline(getStationCodeBorderPath(code.position), metrics.codeBorderStrokeWidth)}
+        fill="white"
       />
       <path d={fillPath} fill={code.underStudy ? "white" : code.colour.bg} fillRule="evenodd" />
       {code.underStudy ? (
         <path
           clipPath={`url(#${underStudyClipPathId})`}
-          d={fillPath}
-          fill="none"
-          stroke={code.colour.bg}
-          strokeDasharray={`${UNDER_STUDY_BORDER_DASH} ${UNDER_STUDY_BORDER_DASH}`}
-          strokeLinecap="butt"
-          strokeLinejoin="round"
-          strokeWidth={UNDER_STUDY_BORDER_STROKE_WIDTH}
+          d={getBorderOutline(fillPath, UNDER_STUDY_BORDER_STROKE_WIDTH, UNDER_STUDY_BORDER_DASH)}
+          fill={code.colour.bg}
         />
       ) : null}
     </g>
